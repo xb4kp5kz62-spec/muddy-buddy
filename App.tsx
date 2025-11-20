@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Dashboard } from './components/Dashboard';
-import { FloorPlan } from './components/FloorPlan';
-import { EquipmentPanel } from './components/EquipmentPanel';
 import { SupplyList } from './components/SupplyList';
-import { MaintenanceList } from './components/MaintenanceList';
 import { FiringLog } from './components/FiringLog';
 import { PhotoGallery } from './components/PhotoGallery';
-import { Settings } from './components/Settings';
 import { PhotoCarousel } from './components/PhotoCarousel';
+import { MaintenanceList } from './components/MaintenanceList';
+import { Settings } from './components/Settings';
 import { AddPhotoModal } from './components/AddPhotoModal';
 import { StudioPlanner } from './components/StudioPlanner';
-import { ArrowLeft, Plus, Images } from 'lucide-react';
+import { ArrowLeft, Plus, Image } from 'lucide-react';
 
 export interface Equipment {
   id: string;
@@ -541,7 +539,7 @@ export default function App() {
               onClick={() => setShowPhotoCarousel(true)}
               className="flex items-center gap-2 px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg transition-all"
             >
-              <Images className="w-4 h-4" />
+              <Image className="w-4 h-4" />
               <span className="text-sm">View Carousel</span>
             </button>
           </div>
