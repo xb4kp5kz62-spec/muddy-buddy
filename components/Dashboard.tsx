@@ -1,4 +1,4 @@
-import { LayoutGrid, Package, ShoppingCart, Flame, Camera, Wrench, FileText, Settings, Plus, Images } from "lucide-react";
+import { LayoutGrid, Package, ShoppingCart, Flame, Camera, Wrench, FileText, Settings, Plus, Image } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface DashboardTileProps {
@@ -83,7 +83,7 @@ export function Dashboard({ onNavigate, onOpenAddPhoto, onOpenCarousel, stats }:
     {
       id: 'photos',
       title: 'Photo Gallery',
-      icon: <Images className="w-full h-full" />,
+      icon: <Image className="w-full h-full" />,
       getStat: () => `${stats.photoCount} photos`,
       color: 'bg-slate-600 hover:bg-slate-700',
     },
@@ -165,7 +165,7 @@ export function Dashboard({ onNavigate, onOpenAddPhoto, onOpenCarousel, stats }:
             onClick={onOpenCarousel}
             className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-ochre-50 text-terracotta-600 rounded-lg transition-all shadow-sm"
           >
-            <Images className="w-4 h-4" />
+            <Image className="w-4 h-4" />
             <span className="text-sm">View Carousel</span>
           </button>
         </div>
