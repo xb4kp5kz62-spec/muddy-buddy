@@ -1,10 +1,5 @@
 import { LayoutGrid, Package, ShoppingCart, Flame, Camera, Wrench, FileText, Settings, Plus, Images } from "lucide-react";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-import { TouchBackend } from "react-dnd-touch-backend";
 import { useEffect, useState } from "react";
-
-const ItemType = "TILE";
 
 interface DashboardTileProps {
   title: string;
@@ -12,38 +7,13 @@ interface DashboardTileProps {
   stat: string;
   color: string;
   onClick: () => void;
-  id: string;
-  index: number;
-  moveTile: (dragIndex: number, hoverIndex: number) => void;
 }
 
-function DashboardTile({ title, icon, stat, color, onClick, id, index, moveTile }: DashboardTileProps) {
-  const [{ isDragging }, drag] = useDrag({
-    type: ItemType,
-    item: { id, index },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  const [, drop] = useDrop({
-    accept: ItemType,
-    hover: (item: { id: string; index: number }) => {
-      if (item.index !== index) {
-        moveTile(item.index, index);
-        item.index = index;
-      }
-    },
-  });
-
+function DashboardTile({ title, icon, stat, color, onClick }: DashboardTileProps) {
   return (
     <button
-      ref={(node) => drag(drop(node))}
       onClick={onClick}
-      className={`${color} relative overflow-hidden rounded-xl aspect-square group shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] p-3 flex flex-col items-center justify-center text-center ${
-        isDragging ? "opacity-50" : "opacity-100"
-      }`}
-      style={{ touchAction: "none" }}
+      className={`${color} relative overflow-hidden rounded-xl aspect-square group shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] p-3 flex flex-col items-center justify-center text-center`}
     >
       {/* Icon - Much Larger */}
       <div className="text-white w-16 h-16 mb-2">
@@ -146,18 +116,6 @@ export function Dashboard({ onNavigate, onOpenAddPhoto, onOpenCarousel, stats }:
       }).filter(Boolean)
     : defaultTiles.map(t => ({ ...t, stat: t.getStat() }));
 
-  const moveTile = (dragIndex: number, hoverIndex: number) => {
-    const newOrder = [...tileOrder];
-    const [draggedId] = newOrder.splice(dragIndex, 1);
-    newOrder.splice(hoverIndex, 0, draggedId);
-    setTileOrder(newOrder);
-  };
-
-  // Detect if on mobile/touch device
-  const isTouchDevice = typeof window !== 'undefined' && 
-    ('ontouchstart' in window || navigator.maxTouchPoints > 0);
-  const backend = isTouchDevice ? TouchBackend : HTML5Backend;
-
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -215,23 +173,18 @@ export function Dashboard({ onNavigate, onOpenAddPhoto, onOpenCarousel, stats }:
 
       {/* Dashboard Grid */}
       <div className="p-4">
-        <DndProvider backend={backend}>
-          <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
-            {tiles.map((tile, index) => (
-              <DashboardTile
-                key={tile.id}
-                title={tile.title}
-                icon={tile.icon}
-                stat={tile.stat}
-                color={tile.color}
-                onClick={() => onNavigate(tile.id)}
-                id={tile.id}
-                index={index}
-                moveTile={moveTile}
-              />
-            ))}
-          </div>
-        </DndProvider>
+        <div className="grid grid-cols-2 gap-3 max-w-lg mx-auto">
+          {tiles.map((tile) => (
+            <DashboardTile
+              key={tile.id}
+              title={tile.title}
+              icon={tile.icon}
+              stat={tile.stat}
+              color={tile.color}
+              onClick={() => onNavigate(tile.id)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
