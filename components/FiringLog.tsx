@@ -262,190 +262,11 @@ export function FiringLog() {
         </button>
       </div>
 
-      {/* Statistics Dashboard */}
-      {showStats && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-orange-200">
-          <div className="text-center">
-            <div className="text-2xl text-slate-900">{kilnStats.totalFirings}</div>
-            <div className="text-xs text-slate-600">Total Firings</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl text-slate-900">{successRate}%</div>
-            <div className="text-xs text-slate-600">Success Rate</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl text-slate-900">{kilnStats.firingSinceElements}</div>
-            <div className="text-xs text-slate-600">Since Elements</div>
-            {kilnStats.firingSinceElements > 200 && (
-              <div className="text-xs text-orange-600 mt-1">⚠️ Check soon</div>
-            )}
-          </div>
-          <div className="text-center">
-            <div className="text-2xl text-slate-900">{avgDuration}</div>
-            <div className="text-xs text-slate-600">Avg Duration (h)</div>
-          </div>
-          <div className="text-center col-span-2 lg:col-span-1">
-            <div className="text-2xl text-slate-900">{bisqueCount}</div>
-            <div className="text-xs text-slate-600">Bisque Firings</div>
-          </div>
-          <div className="text-center col-span-2 lg:col-span-1">
-            <div className="text-2xl text-slate-900">{glazeCount}</div>
-            <div className="text-xs text-slate-600">Glaze Firings</div>
-          </div>
-          <div className="text-center col-span-2">
-            <div className="text-sm text-slate-900">
-              {kilnStats.elementInstallDate 
-                ? new Date(kilnStats.elementInstallDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                : 'Not Set'}
-            </div>
-            <div className="text-xs text-slate-600">Elements Installed</div>
-          </div>
-        </div>
-      )}
-
-      {/* Search and Filter */}
-      <div className="flex gap-2 mb-4">
-        <div className="flex-1 relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search firings..."
-            className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded text-sm"
-          />
-        </div>
-        <select
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value as 'All' | FiringType)}
-          className="px-3 py-2 border border-slate-300 rounded text-sm bg-white"
-        >
-          <option value="All">All Types</option>
-          <option value="Bisque">Bisque</option>
-          <option value="Glaze">Glaze</option>
-          <option value="Test">Test</option>
-        </select>
-      </div>
-
-      {/* Firing List */}
-      <div className="space-y-3 mb-4 max-h-[500px] overflow-y-auto">
-        {filteredFirings.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
-            {searchTerm || filterType !== 'All' 
-              ? 'No firings match your filters'
-              : 'No firings logged yet. Add your first firing below!'}
-          </div>
-        ) : (
-          filteredFirings.map(firing => (
-            <div
-              key={firing.id}
-              className="p-4 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors bg-white"
-            >
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`px-2 py-0.5 rounded text-xs ${
-                      firing.type === 'Bisque' ? 'bg-blue-100 text-blue-700' :
-                      firing.type === 'Glaze' ? 'bg-purple-100 text-purple-700' :
-                      'bg-amber-100 text-amber-700'
-                    }`}>
-                      {firing.type}
-                    </span>
-                    <span className="text-sm text-slate-900">
-                      Cone {firing.cone}
-                      {getConeTemp(firing.cone) && (
-                        <span className="text-slate-500 ml-1">({getConeTemp(firing.cone)})</span>
-                      )}
-                    </span>
-                    {firing.temperature && (
-                      <span className="text-xs text-slate-500">
-                        Actual: {firing.temperature}°F
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-600">
-                    <Calendar className="w-3 h-3" />
-                    {formatDate(firing.date)}
-                    {firing.duration && (
-                      <>
-                        <Clock className="w-3 h-3 ml-2" />
-                        {formatDuration(firing.duration)}
-                      </>
-                    )}
-                    {firing.program && (
-                      <>
-                        <ThermometerSun className="w-3 h-3 ml-2" />
-                        {firing.program}
-                      </>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs border ${getResultColor(firing.result)}`}>
-                    {getResultIcon(firing.result)}
-                    {firing.result}
-                  </span>
-                  <button
-                    onClick={() => deleteFiring(firing.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="text-sm text-slate-700 mb-2">
-                <span className="text-slate-900">Contents:</span> {firing.contents}
-              </div>
-
-              {firing.notes && (
-                <div className="text-sm text-slate-600 bg-slate-50 p-2 rounded mb-2">
-                  📝 {firing.notes}
-                </div>
-              )}
-
-              {firing.issues && (
-                <div className="text-sm text-orange-700 bg-orange-50 p-2 rounded border border-orange-200 mb-2">
-                  ⚠️ <span className="text-slate-900">Issues:</span> {firing.issues}
-                </div>
-              )}
-
-              {firing.photos && firing.photos.length > 0 && (
-                <div className="mt-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Camera className="w-4 h-4 text-slate-600" />
-                    <span className="text-xs text-slate-600">Photos ({firing.photos.length})</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {firing.photos.map((photo, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={photo}
-                          alt={`Firing result ${index + 1}`}
-                          className="w-24 h-24 object-cover rounded border-2 border-slate-200 hover:border-orange-400 transition-colors cursor-pointer"
-                          onClick={() => window.open(photo, '_blank')}
-                        />
-                        <button
-                          onClick={() => removePhotoFromFiring(firing.id, index)}
-                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-
-      {/* Add New Firing */}
+      {/* Add New Firing - Moved to Top */}
       {!isAddingFiring ? (
         <button
           onClick={() => setIsAddingFiring(true)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-orange-100 hover:bg-orange-200 text-orange-900 rounded border-2 border-dashed border-orange-300 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 mb-4 bg-orange-100 hover:bg-orange-200 text-orange-900 rounded border-2 border-dashed border-orange-300 transition-colors"
         >
           <Plus className="w-5 h-5" />
           Log New Firing
@@ -649,6 +470,185 @@ export function FiringLog() {
           </div>
         </div>
       )}
+
+      {/* Statistics Dashboard */}
+      {showStats && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4 p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border border-orange-200">
+          <div className="text-center">
+            <div className="text-2xl text-slate-900">{kilnStats.totalFirings}</div>
+            <div className="text-xs text-slate-600">Total Firings</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl text-slate-900">{successRate}%</div>
+            <div className="text-xs text-slate-600">Success Rate</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl text-slate-900">{kilnStats.firingSinceElements}</div>
+            <div className="text-xs text-slate-600">Since Elements</div>
+            {kilnStats.firingSinceElements > 200 && (
+              <div className="text-xs text-orange-600 mt-1">⚠️ Check soon</div>
+            )}
+          </div>
+          <div className="text-center">
+            <div className="text-2xl text-slate-900">{avgDuration}</div>
+            <div className="text-xs text-slate-600">Avg Duration (h)</div>
+          </div>
+          <div className="text-center col-span-2 lg:col-span-1">
+            <div className="text-2xl text-slate-900">{bisqueCount}</div>
+            <div className="text-xs text-slate-600">Bisque Firings</div>
+          </div>
+          <div className="text-center col-span-2 lg:col-span-1">
+            <div className="text-2xl text-slate-900">{glazeCount}</div>
+            <div className="text-xs text-slate-600">Glaze Firings</div>
+          </div>
+          <div className="text-center col-span-2">
+            <div className="text-sm text-slate-900">
+              {kilnStats.elementInstallDate 
+                ? new Date(kilnStats.elementInstallDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                : 'Not Set'}
+            </div>
+            <div className="text-xs text-slate-600">Elements Installed</div>
+          </div>
+        </div>
+      )}
+
+      {/* Search and Filter */}
+      <div className="flex gap-2 mb-4">
+        <div className="flex-1 relative">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search firings..."
+            className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded text-sm"
+          />
+        </div>
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value as 'All' | FiringType)}
+          className="px-3 py-2 border border-slate-300 rounded text-sm bg-white"
+        >
+          <option value="All">All Types</option>
+          <option value="Bisque">Bisque</option>
+          <option value="Glaze">Glaze</option>
+          <option value="Test">Test</option>
+        </select>
+      </div>
+
+      {/* Firing List */}
+      <div className="space-y-3 mb-4 max-h-[500px] overflow-y-auto">
+        {filteredFirings.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            {searchTerm || filterType !== 'All' 
+              ? 'No firings match your filters'
+              : 'No firings logged yet. Add your first firing below!'}
+          </div>
+        ) : (
+          filteredFirings.map(firing => (
+            <div
+              key={firing.id}
+              className="p-4 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors bg-white"
+            >
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`px-2 py-0.5 rounded text-xs ${
+                      firing.type === 'Bisque' ? 'bg-blue-100 text-blue-700' :
+                      firing.type === 'Glaze' ? 'bg-purple-100 text-purple-700' :
+                      'bg-amber-100 text-amber-700'
+                    }`}>
+                      {firing.type}
+                    </span>
+                    <span className="text-sm text-slate-900">
+                      Cone {firing.cone}
+                      {getConeTemp(firing.cone) && (
+                        <span className="text-slate-500 ml-1">({getConeTemp(firing.cone)})</span>
+                      )}
+                    </span>
+                    {firing.temperature && (
+                      <span className="text-xs text-slate-500">
+                        Actual: {firing.temperature}°F
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-600">
+                    <Calendar className="w-3 h-3" />
+                    {formatDate(firing.date)}
+                    {firing.duration && (
+                      <>
+                        <Clock className="w-3 h-3 ml-2" />
+                        {formatDuration(firing.duration)}
+                      </>
+                    )}
+                    {firing.program && (
+                      <>
+                        <ThermometerSun className="w-3 h-3 ml-2" />
+                        {firing.program}
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`flex items-center gap-1 px-2 py-1 rounded text-xs border ${getResultColor(firing.result)}`}>
+                    {getResultIcon(firing.result)}
+                    {firing.result}
+                  </span>
+                  <button
+                    onClick={() => deleteFiring(firing.id)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="text-sm text-slate-700 mb-2">
+                <span className="text-slate-900">Contents:</span> {firing.contents}
+              </div>
+
+              {firing.notes && (
+                <div className="text-sm text-slate-600 bg-slate-50 p-2 rounded mb-2">
+                  📝 {firing.notes}
+                </div>
+              )}
+
+              {firing.issues && (
+                <div className="text-sm text-orange-700 bg-orange-50 p-2 rounded border border-orange-200 mb-2">
+                  ⚠️ <span className="text-slate-900">Issues:</span> {firing.issues}
+                </div>
+              )}
+
+              {firing.photos && firing.photos.length > 0 && (
+                <div className="mt-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Camera className="w-4 h-4 text-slate-600" />
+                    <span className="text-xs text-slate-600">Photos ({firing.photos.length})</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {firing.photos.map((photo, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={photo}
+                          alt={`Firing result ${index + 1}`}
+                          className="w-24 h-24 object-cover rounded border-2 border-slate-200 hover:border-orange-400 transition-colors cursor-pointer"
+                          onClick={() => window.open(photo, '_blank')}
+                        />
+                        <button
+                          onClick={() => removePhotoFromFiring(firing.id, index)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
 
       <div className="mt-4 pt-4 border-t border-slate-200">
         <p className="text-xs text-slate-600">
