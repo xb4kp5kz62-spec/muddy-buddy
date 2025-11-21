@@ -32,6 +32,8 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [showPhotoCarousel, setShowPhotoCarousel] = useState(false);
   const [showAddPhotoModal, setShowAddPhotoModal] = useState(false);
+  const [undoState, setUndoState] = useState<Equipment[] | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
 
   const [spaceWidth, setSpaceWidth] = useState(() => {
     const saved = localStorage.getItem('pottery-studio-width');
@@ -326,7 +328,30 @@ export default function App() {
   };
 
   const deleteEquipment = (id: string) => {
-    setEquipment(prev => prev.filter(item => item.id !== id));
+    // Save current state for undo
+    setUndoState([...equipment]);
+    
+    // Remove from floor plan (set x and y to undefined) instead of deleting
+    setEquipment(prev => 
+      prev.map(item => {
+        if (item.id === id) {
+          return { ...item, x: undefined as any, y: undefined as any };
+        }
+        return item;
+      })
+    );
+    
+    // Show undo notification
+    setShowUndo(true);
+    setTimeout(() => setShowUndo(false), 5000); // Hide after 5 seconds
+  };
+
+  const handleUndo = () => {
+    if (undoState) {
+      setEquipment(undoState);
+      setUndoState(null);
+      setShowUndo(false);
+    }
   };
 
   const addEquipment = (newEquipment: Omit<Equipment, 'id' | 'x' | 'y' | 'rotation'>) => {
@@ -594,6 +619,27 @@ export default function App() {
             window.dispatchEvent(new Event('storage'));
           }}
         />
+      )}
+
+      {/* Undo Notification - Appears when equipment is removed */}
+      {showUndo && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom">
+          <div className="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3">
+            <span className="text-sm">Equipment removed from floor</span>
+            <button
+              onClick={handleUndo}
+              className="px-3 py-1 bg-terracotta-500 hover:bg-terracotta-600 text-white text-sm rounded transition-colors"
+            >
+              Undo
+            </button>
+            <button
+              onClick={() => setShowUndo(false)}
+              className="text-slate-400 hover:text-white transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
