@@ -75,7 +75,7 @@ export function FloorPlan({ width, depth, equipment, onUpdateEquipment, onDelete
       </div>
 
       <div
-        className="relative bg-slate-100 border-2 border-slate-300 mx-auto"
+        className="relative bg-slate-700 border-2 border-slate-300 mx-auto"
         style={{
           width: `${pixelWidth}px`,
           height: `${pixelDepth}px`,
