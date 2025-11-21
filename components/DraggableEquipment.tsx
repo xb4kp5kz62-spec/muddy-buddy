@@ -50,6 +50,18 @@ export function DraggableEquipment({ equipment, scale, maxX, maxY, onUpdate, onD
     e.preventDefault();
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    const touch = e.touches[0];
+    dragRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      initialX: equipment.x,
+      initialY: equipment.y
+    };
+    e.preventDefault();
+  };
+
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !dragRef.current) return;
 
@@ -79,7 +91,42 @@ export function DraggableEquipment({ equipment, scale, maxX, maxY, onUpdate, onD
     onUpdate(equipment.id, { x: newX, y: newY });
   };
 
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!isDragging || !dragRef.current) return;
+
+    const touch = e.touches[0];
+    const deltaX = (touch.clientX - dragRef.current.startX) / scale;
+    const deltaY = (touch.clientY - dragRef.current.startY) / scale;
+
+    let newX = dragRef.current.initialX + deltaX;
+    let newY = dragRef.current.initialY + deltaY;
+
+    // Special constraint for sink - must be on right wall (exterior wall)
+    if (equipment.id === 'sink-1') {
+      // Sink must be against the right wall (x = maxX - equipment.width)
+      newX = maxX - equipment.width;
+      // Can only move along the Y axis
+      newY = Math.max(0.5, Math.min(maxY - equipment.depth - 0.5, newY));
+    } else {
+      // Regular constraints for other equipment
+      // Avoid the garage door area (bottom 1 foot)
+      const minY = 0.5;
+      const maxYPos = maxY - equipment.depth - 0.5; // Keep away from garage door
+      
+      // Avoid the man door area on left wall (x < 1, y between 8 and 11)
+      newX = Math.max(0.5, Math.min(maxX - equipment.width, newX));
+      newY = Math.max(minY, Math.min(maxYPos, newY));
+    }
+
+    onUpdate(equipment.id, { x: newX, y: newY });
+  };
+
   const handleMouseUp = () => {
+    setIsDragging(false);
+    dragRef.current = null;
+  };
+
+  const handleTouchEnd = () => {
     setIsDragging(false);
     dragRef.current = null;
   };
@@ -89,12 +136,16 @@ export function DraggableEquipment({ equipment, scale, maxX, maxY, onUpdate, onD
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
     }
     
     // Cleanup
     if (!isDragging) {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
     }
   }
 
@@ -121,6 +172,7 @@ export function DraggableEquipment({ equipment, scale, maxX, maxY, onUpdate, onD
           zIndex: isDragging ? 50 : 10
         }}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
         onMouseOver={() => setShowControls(true)}
