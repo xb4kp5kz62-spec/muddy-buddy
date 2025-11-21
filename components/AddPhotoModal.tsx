@@ -88,7 +88,6 @@ export function AddPhotoModal({ onClose, onPhotoAdded }: AddPhotoModalProps) {
             <input
               type="file"
               accept="image/*"
-              capture="environment"
               onChange={handleImageUpload}
               className="w-full text-sm text-slate-600 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:bg-terracotta-500 file:text-white hover:file:bg-terracotta-600 file:cursor-pointer file:transition-colors"
             />
